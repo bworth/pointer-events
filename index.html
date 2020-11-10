@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pointer Events</title>
+
+<style>
+:root {
+	--face-bg-color-1: rgba(0, 0, 0, 0.35);
+	--face-bg-color-2: rgba(192, 192, 0, 0.75);
+	--face-bg-color-3: rgba(192, 0, 0, 0.75);
+	--face-bg-color-4: rgba(0, 0, 192, 0.75);
+	--face-bg-color-5: rgba(192, 0, 192, 0.75);
+	--face-bg-color-6: rgba(0, 192, 0, 0.75);
+	--face-fg-color: #fff;
+	--face-size: 100px;
+}
+
+html {
+	font-family: sans-serif;
+	-webkit-text-size-adjust: 100%;
+}
+
+body {
+	margin: 1rem;
+}
+
+main {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+}
+
+.container {
+	border-radius: 5px;
+	contain: content;
+	cursor: pointer;
+	margin: calc(var(--face-size) / 3);
+	perspective: calc(var(--face-size) * 3);
+}
+
+.container:focus {
+	outline: unset;
+}
+
+.container:focus-visible {
+	outline: revert;
+}
+
+.container:focus:not(:focus-visible) {
+	outline: unset;
+}
+
+.cube {
+	cursor: move;
+	height: var(--face-size);
+	margin: calc(var(--face-size) * 2 / 3);
+	touch-action: none;
+	transform-style: preserve-3d;
+	width: var(--face-size);
+}
+
+.face {
+	color: var(--face-fg-color);
+	display: block;
+	font-size: calc(var(--face-size) / 2);
+	height: 100%;
+	line-height: var(--face-size);
+	position: absolute;
+	text-align: center;
+	-webkit-user-select: none;
+	user-select: none;
+	width: 100%;
+}
+
+.front {
+	background-color: var(--face-bg-color-1);
+	transform: translateZ(calc(var(--face-size) / 2));
+}
+
+.top {
+	background-color: var(--face-bg-color-2);
+	transform: rotateX(90deg) translateZ(calc(var(--face-size) / 2));
+}
+
+.right {
+	background-color: var(--face-bg-color-3);
+	transform: rotateY(90deg) translateZ(calc(var(--face-size) / 2));
+}
+
+.left {
+	background-color: var(--face-bg-color-4);
+	transform: rotateY(-90deg) translateZ(calc(var(--face-size) / 2));
+}
+
+.bottom {
+	background-color: var(--face-bg-color-5);
+	transform: rotateX(-90deg) translateZ(calc(var(--face-size) / 2));
+}
+
+.back {
+	background-color: var(--face-bg-color-6);
+	transform: rotateY(180deg) translateZ(calc(var(--face-size) / 2));
+}
+
+.controls fieldset {
+	border: 0;
+	margin: 0 0 1.2rem;
+	padding: 0;
+}
+
+.controls legend {
+	padding: 0;
+	text-align: center;
+	width: 100%;
+}
+
+.controls ul {
+	margin: 1.5rem 0;
+	padding: 0 2rem;
+}
+
+.controls li {
+	align-items: center;
+	display: flex;
+	margin-bottom: 1.5rem;
+	white-space: nowrap;
+}
+
+.controls label {
+	cursor: pointer;
+}
+
+.controls input {
+	cursor: pointer;
+	margin: 0 0.5rem 0 1rem;
+}
+
+.output-value {
+	display: inline-block;
+	min-width: 2em;
+	text-align: right;
+}
+
+noscript {
+	text-align: center;
+}
+</style>
+
+<noscript>
+<style>
+.container,
+.cube,
+.controls label,
+.controls input {
+	cursor: unset;
+}
+</style>
+</noscript>
+</head>
+
+<body>
+<main>
+	<figure class="container" aria-label="Shape for manipulation">
+		<div class="cube" role="img" aria-label="Cube">
+			<div class="face front">1</div>
+			<div class="face top">2</div>
+			<div class="face right">3</div>
+			<div class="face left">4</div>
+			<div class="face bottom">5</div>
+			<div class="face back">6</div>
+		</div>
+	</figure>
+
+	<form class="controls">
+		<fieldset disabled>
+			<legend>Rotation</legend>
+			<ul>
+				<li>
+					<label for="input-x">X axis</label>
+					<input id="input-x" type="range" min="-180" max="180" list="input-list" />
+					<output id="output-x" for="input-x"><span class="output-value">0</span>°</output>
+				</li>
+				<li>
+					<label for="input-y">Y axis</label>
+					<input id="input-y" type="range" min="-180" max="180" list="input-list" />
+					<output id="output-y" for="input-y"><span class="output-value">0</span>°</output>
+				</li>
+			</ul>
+		</fieldset>
+	</form>
+</main>
+
+<datalist id="input-list">
+	<option value="-180">-180°</option>
+	<option value="-90">-90°</option>
+	<option value="0" selected>0°</option>
+	<option value="90">90°</option>
+	<option value="180">180°</option>
+</datalist>
+
+<noscript>
+	<p><em>Please enable JavaScript.</em></p>
+</noscript>
+
+<script>
+function clampRotationValue(value, min = -180, max = 180, range = max - min) {
+	value = Math.round(value % range);
+
+	if (value < min) {
+		value = value + range;
+	} else if (value > max) {
+		value = value - range;
+	}
+
+	return value;
+}
+
+function transformElement(element, rx = 0, ry = 0, rz = 0, tz = 0) {
+	element.style.transform = `rotateX(${ rx }deg) rotateY(${ ry }deg) rotateZ(${ rz }deg) translateZ(${ tz }px)`;
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+	const container = document.querySelector('.container');
+	const cube = document.querySelector('.cube');
+	const inputX = document.querySelector('#input-x');
+	const inputY = document.querySelector('#input-y');
+	const outputX = document.querySelector('#output-x .output-value');
+	const outputY = document.querySelector('#output-y .output-value');
+	let rafId = null,
+		translateZ = 0,
+		valueX = 0,
+		valueY = 0,
+		valueZ = 0,
+		deltaX, deltaY, startX, startY;
+
+	function init() {
+		updateElements(valueX, valueY);
+		container.setAttribute('tabindex', '0');
+		document.querySelector('.controls fieldset').disabled = false;
+	}
+
+	function pointer1Moved() {
+		updateElements(clampRotationValue(valueX + deltaY), clampRotationValue(valueY + deltaX));
+		rafId = null;
+	}
+
+	function pointer2Moved() {
+		transformElement(cube, valueX, valueY, clampRotationValue(valueZ + deltaX), translateZ + deltaY);
+		rafId = null;
+	}
+
+	function updateElements(rx, ry) {
+		inputX.value = rx;
+		inputY.value = ry;
+		outputX.textContent = rx;
+		outputY.textContent = ry;
+		transformElement(cube, rx, ry);
+	}
+
+	cube.addEventListener('pointerdown', (event) => {
+		event.target.setPointerCapture(event.pointerId);
+		startX = event.clientX;
+		startY = event.clientY;
+	});
+
+	cube.addEventListener('pointermove', (event) => {
+		if (event.target.hasPointerCapture(event.pointerId) && !rafId) {
+			deltaX = event.clientX - startX;
+			deltaY = startY - event.clientY;
+
+			if (event.buttons === 2) {
+				rafId = requestAnimationFrame(pointer2Moved);
+			} else {
+				rafId = requestAnimationFrame(pointer1Moved);
+			}
+		}
+	});
+
+	cube.addEventListener('lostpointercapture', (event) => {
+		valueX = inputX.valueAsNumber;
+		valueY = inputY.valueAsNumber;
+
+		if (rafId) {
+			cancelAnimationFrame(rafId);
+			rafId = null;
+		}
+	});
+
+	container.addEventListener('keydown', (event) => {
+		switch (event.key) {
+			case 'ArrowDown':
+				valueX = clampRotationValue(valueX - (event.shiftKey ? 10 : 1));
+				updateElements(valueX, valueY);
+				event.preventDefault();
+				break;
+
+			case 'ArrowLeft':
+				valueY = clampRotationValue(valueY - (event.shiftKey ? 10 : 1));
+				updateElements(valueX, valueY);
+				event.preventDefault();
+				break;
+
+			case 'ArrowRight':
+				valueY = clampRotationValue(valueY + (event.shiftKey ? 10 : 1));
+				updateElements(valueX, valueY);
+				event.preventDefault();
+				break;
+
+			case 'ArrowUp':
+				valueX = clampRotationValue(valueX + (event.shiftKey ? 10 : 1));
+				updateElements(valueX, valueY);
+				event.preventDefault();
+				break;
+		}
+	});
+
+	container.addEventListener('contextmenu', (event) => {
+		event.preventDefault();
+	});
+
+	container.addEventListener('touchmove', (event) => {
+		event.preventDefault();
+	});
+
+	inputX.addEventListener('input', (event) => {
+		valueX = event.currentTarget.valueAsNumber;
+		updateElements(valueX, valueY);
+	});
+
+	inputY.addEventListener('input', (event) => {
+		valueY = event.currentTarget.valueAsNumber;
+		updateElements(valueX, valueY);
+	});
+
+	init();
+});
+</script>
+</body>
+</html>
