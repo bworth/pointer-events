@@ -9,6 +9,17 @@
 
 <style>
 :root {
+	--line-height: 1.5;
+	--header-height: 72px;
+	--button-size: 48px;
+	--icon-size: 24px;
+	--face-size: 100px;
+	--transition-duration: 500ms;
+	--transition-duration-short: 150ms;
+
+	--bg-color: hsl(0, 0%, 100%);
+	--color: hsl(0, 0%, 15%);
+	--button-bg-color: hsl(0, 0%, 90%);
 	--face-bg-color-1: hsla(180, 100%, 40%, 0.8);
 	--face-bg-color-2: hsla( 60, 100%, 40%, 0.8);
 	--face-bg-color-3: hsla(  0, 100%, 40%, 0.8);
@@ -17,28 +28,57 @@
 	--face-bg-color-6: hsla(120, 100%, 40%, 0.8);
 	--face-color: hsl(0, 0%, 95%);
 	--face-text-shadow: 0 1px hsl(0, 0%, 100%), 0 -1px hsla(0, 0%, 0%, 0.1);
-	--face-size: 100px;
-	--line-height: 1.5;
+	--input-filter: unset;
+}
+
+:root[data-theme='dark'] {
+	--bg-color: hsl(0, 0%, 15%);
+	--color: hsl(0, 0%, 80%);
+	--button-bg-color: hsl(0, 0%, 25%);
+	--face-bg-color-1: hsla(180, 100%, 20%, 0.8);
+	--face-bg-color-2: hsla( 60, 100%, 20%, 0.8);
+	--face-bg-color-3: hsla(  0, 100%, 20%, 0.8);
+	--face-bg-color-4: hsla(240, 100%, 20%, 0.8);
+	--face-bg-color-5: hsla(300, 100%, 20%, 0.8);
+	--face-bg-color-6: hsla(120, 100%, 20%, 0.8);
+	--face-color: hsl(0, 0%, 65%);
+	--face-text-shadow: 0 1px hsla(0, 0%, 100%, 0.6), 0 -1px hsla(0, 0%, 0%, 0.1);
+	--input-filter: invert(100%) hue-rotate(180deg) brightness(80%);
 }
 
 html {
+	background-color: var(--bg-color);
+	color: var(--color);
 	font-family: sans-serif;
 	line-height: var(--line-height);
 	-webkit-text-size-adjust: 100%;
 	text-size-adjust: none;
+	transition-duration: var(--transition-duration);
+	transition-property: background-color, color;
 }
 
 body {
 	margin: 0;
 }
 
+header {
+	display: flex;
+	left: 0;
+	padding: calc((var(--header-height) - var(--button-size)) / 2);
+	position: fixed;
+	right: 0;
+	top: 0;
+}
+
 main {
 	align-content: center;
 	align-items: center;
+	box-sizing: border-box;
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: center;
 	min-height: min(100vh, calc(var(--face-size) * 5));
+	padding-top: var(--header-height);
 }
 
 noscript {
@@ -95,6 +135,8 @@ noscript {
 	position: absolute;
 	text-align: center;
 	text-shadow: var(--face-text-shadow);
+	transition-duration: var(--transition-duration);
+	transition-property: background-color, color, text-shadow;
 	-webkit-user-select: none;
 	user-select: none;
 	width: 100%;
@@ -170,9 +212,11 @@ noscript {
 
 .controls input {
 	cursor: pointer;
+	filter: var(--input-filter);
 	flex-shrink: 0;
 	margin-left: 0;
 	margin-right: 0;
+	transition: filter var(--transition-duration);
 }
 
 .controls fieldset[disabled] label,
@@ -192,6 +236,94 @@ noscript {
 	text-align: right;
 }
 
+.theme-toggle {
+	background-color: unset;
+	border: 0;
+	border-radius: 50%;
+	color: inherit;
+	cursor: pointer;
+	flex-shrink: 0;
+	padding: calc((var(--button-size) - var(--icon-size)) / 2);
+	margin: 0 0 0 auto;
+	touch-action: none;
+	transition: background-color var(--transition-duration), transform var(--transition-duration-short);
+	-webkit-user-select: none;
+	user-select: none;
+	-webkit-tap-highlight-color: transparent;
+}
+
+.theme-toggle:focus {
+	outline: unset;
+}
+
+.theme-toggle:focus-visible {
+	outline: revert;
+}
+
+@media (any-hover: hover) {
+	.theme-toggle:hover {
+		background-color: var(--button-bg-color);
+		transition-duration: var(--transition-duration-short);
+	}
+
+	.theme-toggle:active {
+		transform: scale(0.85);
+	}
+}
+
+@media (any-hover: none) {
+	.theme-toggle:active {
+		background-color: var(--button-bg-color);
+		transition: unset;
+	}
+}
+
+.theme-toggle[disabled] {
+	background-color: unset;
+	cursor: unset;
+	opacity: 0.5;
+	transform: unset;
+}
+
+.theme-toggle svg {
+	fill: currentColor;
+	height: var(--icon-size);
+	vertical-align: top;
+	width: var(--icon-size);
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--bg-color: hsl(0, 0%, 15%);
+		--color: hsl(0, 0%, 80%);
+		--button-bg-color: hsl(0, 0%, 25%);
+		--face-bg-color-1: hsla(180, 100%, 20%, 0.8);
+		--face-bg-color-2: hsla( 60, 100%, 20%, 0.8);
+		--face-bg-color-3: hsla(  0, 100%, 20%, 0.8);
+		--face-bg-color-4: hsla(240, 100%, 20%, 0.8);
+		--face-bg-color-5: hsla(300, 100%, 20%, 0.8);
+		--face-bg-color-6: hsla(120, 100%, 20%, 0.8);
+		--face-color: hsl(0, 0%, 65%);
+		--face-text-shadow: 0 1px hsla(0, 0%, 100%, 0.6), 0 -1px hsla(0, 0%, 0%, 0.1);
+		--input-filter: invert(100%) hue-rotate(180deg) brightness(80%);
+	}
+
+	:root[data-theme='light'] {
+		--bg-color: hsl(0, 0%, 100%);
+		--color: hsl(0, 0%, 15%);
+		--button-bg-color: hsl(0, 0%, 90%);
+		--face-bg-color-1: hsla(180, 100%, 40%, 0.8);
+		--face-bg-color-2: hsla( 60, 100%, 40%, 0.8);
+		--face-bg-color-3: hsla(  0, 100%, 40%, 0.8);
+		--face-bg-color-4: hsla(240, 100%, 40%, 0.8);
+		--face-bg-color-5: hsla(300, 100%, 40%, 0.8);
+		--face-bg-color-6: hsla(120, 100%, 40%, 0.8);
+		--face-color: hsl(0, 0%, 95%);
+		--face-text-shadow: 0 1px hsl(0, 0%, 100%), 0 -1px hsla(0, 0%, 0%, 0.1);
+		--input-filter: unset;
+	}
+}
+
 @media screen and (min-width: 720px) {
 	:root {
 		--face-size: 200px;
@@ -201,6 +333,14 @@ noscript {
 </head>
 
 <body>
+<header>
+	<button class="theme-toggle" disabled title="Toggle dark/light theme" type="button">
+		<svg role="img" viewBox="0 0 24 24" aria-label="Theme toggle">
+			<path d="M12 1a11 11 0 000 22 11 11 0 000-22zM3 12s0-9 9-9v18a9 9 0 01-9-9z" />
+		</svg>
+	</button>
+</header>
+
 <main>
 	<noscript>
 		<p role="alert"><em>Please enable JavaScript.</em></p>
@@ -264,6 +404,23 @@ function transformElement(element, rx = 0, ry = 0, rz = 0, tz = 0) {
 	element.style.setProperty('--translateZ', tz);
 }
 
+function getTheme() {
+	return document.documentElement.getAttribute('data-theme') || localStorage.getItem('theme');
+}
+
+function setTheme(theme) {
+	if (theme) {
+		document.documentElement.setAttribute('data-theme', theme);
+
+		try {
+			localStorage.setItem('theme', theme);
+		} catch {}
+	} else {
+		document.documentElement.removeAttribute('data-theme');
+		localStorage.removeItem('theme');
+	}
+}
+
 window.addEventListener('DOMContentLoaded', () => {
 	const container = document.querySelector('.container');
 	const cube = document.querySelector('.cube');
@@ -271,6 +428,7 @@ window.addEventListener('DOMContentLoaded', () => {
 	const inputY = document.querySelector('#input-y');
 	const outputX = document.querySelector('#output-x .output-value');
 	const outputY = document.querySelector('#output-y .output-value');
+	const themeToggle = document.querySelector('.theme-toggle');
 	let rafId = null,
 		translateZ = 0,
 		valueX = 0,
@@ -279,6 +437,13 @@ window.addEventListener('DOMContentLoaded', () => {
 		deltaX, deltaY, startX, startY;
 
 	function init() {
+		const currentTheme = getTheme();
+
+		if (currentTheme) {
+			setTheme(currentTheme);
+		}
+
+		themeToggle.disabled = false;
 		updateView(valueX, valueY);
 		container.setAttribute('tabindex', '0');
 		container.removeAttribute('aria-disabled');
@@ -366,7 +531,7 @@ window.addEventListener('DOMContentLoaded', () => {
 		event.preventDefault();
 	});
 
-	// CSS touch-action: none; is unreliable on iOS 13
+	// touch-action: none; is less than reliable on iOS
 	container.addEventListener('touchmove', (event) => {
 		event.preventDefault();
 	});
@@ -379,6 +544,16 @@ window.addEventListener('DOMContentLoaded', () => {
 	inputY.addEventListener('input', (event) => {
 		valueY = event.currentTarget.valueAsNumber;
 		updateView(valueX, valueY);
+	});
+
+	themeToggle.addEventListener('click', () => {
+		const currentTheme = getTheme();
+
+		if (matchMedia('(prefers-color-scheme: dark)').matches) {
+			setTheme(currentTheme !== 'light' ? 'light' : null);
+		} else {
+			setTheme(currentTheme !== 'dark' ? 'dark' : null);
+		}
 	});
 
 	init();
