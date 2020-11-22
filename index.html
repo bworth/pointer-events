@@ -7,38 +7,50 @@
 
 <style>
 :root {
-	--face-bg-color-1: rgba(0, 0, 0, 0.35);
-	--face-bg-color-2: rgba(192, 192, 0, 0.75);
-	--face-bg-color-3: rgba(192, 0, 0, 0.75);
-	--face-bg-color-4: rgba(0, 0, 192, 0.75);
-	--face-bg-color-5: rgba(192, 0, 192, 0.75);
-	--face-bg-color-6: rgba(0, 192, 0, 0.75);
-	--face-fg-color: #fff;
+	--face-bg-color-1: hsla(180, 100%, 40%, 0.8);
+	--face-bg-color-2: hsla( 60, 100%, 40%, 0.8);
+	--face-bg-color-3: hsla(  0, 100%, 40%, 0.8);
+	--face-bg-color-4: hsla(240, 100%, 40%, 0.8);
+	--face-bg-color-5: hsla(300, 100%, 40%, 0.8);
+	--face-bg-color-6: hsla(120, 100%, 40%, 0.8);
+	--face-color: hsl(0, 0%, 95%);
+	--face-text-shadow: 0 1px hsl(0, 0%, 100%), 0 -1px hsla(0, 0%, 0%, 0.1);
 	--face-size: 100px;
+	--line-height: 1.5;
 }
 
 html {
 	font-family: sans-serif;
+	line-height: var(--line-height);
 	-webkit-text-size-adjust: 100%;
+	text-size-adjust: none;
 }
 
 body {
-	margin: 1rem;
+	margin: 0;
 }
 
 main {
+	align-content: center;
 	align-items: center;
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: center;
+	min-height: min(100vh, calc(var(--face-size) * 5));
+}
+
+noscript {
+	flex: 0 0 100%;
+	text-align: center;
 }
 
 .container {
-	border-radius: 5px;
 	contain: content;
 	cursor: pointer;
-	margin: calc(var(--face-size) / 3);
+	flex-shrink: 0;
+	margin: 1rem;
 	perspective: calc(var(--face-size) * 3);
+	touch-action: none;
 }
 
 .container:focus {
@@ -49,27 +61,38 @@ main {
 	outline: revert;
 }
 
-.container:focus:not(:focus-visible) {
-	outline: unset;
+.container[aria-disabled] {
+	cursor: unset;
+	filter: grayscale(1);
 }
 
 .cube {
 	cursor: move;
 	height: var(--face-size);
-	margin: calc(var(--face-size) * 2 / 3);
-	touch-action: none;
+	margin: calc(var(--face-size) / 2);
+	position: relative;
+	transform:
+		rotateX(calc(var(--rotateX) * 1deg))
+		rotateY(calc(var(--rotateY) * 1deg))
+		rotateZ(calc(var(--rotateZ) * 1deg))
+		translateZ(calc(var(--translateZ) * 1px));
+	transform-origin: 50% 50% calc(var(--face-size) / -2);
 	transform-style: preserve-3d;
 	width: var(--face-size);
 }
 
+.container[aria-disabled] .cube {
+	cursor: unset;
+}
+
 .face {
-	color: var(--face-fg-color);
-	display: block;
+	color: var(--face-color);
 	font-size: calc(var(--face-size) / 2);
 	height: 100%;
 	line-height: var(--face-size);
 	position: absolute;
 	text-align: center;
+	text-shadow: var(--face-text-shadow);
 	-webkit-user-select: none;
 	user-select: none;
 	width: 100%;
@@ -77,37 +100,45 @@ main {
 
 .front {
 	background-color: var(--face-bg-color-1);
-	transform: translateZ(calc(var(--face-size) / 2));
 }
 
 .top {
 	background-color: var(--face-bg-color-2);
-	transform: rotateX(90deg) translateZ(calc(var(--face-size) / 2));
+	transform: rotateX(90deg) translate3d(0, calc(var(--face-size) / -2), calc(var(--face-size) / 2));
 }
 
 .right {
 	background-color: var(--face-bg-color-3);
-	transform: rotateY(90deg) translateZ(calc(var(--face-size) / 2));
+	transform: rotateY(90deg) translate3d(calc(var(--face-size) / 2), 0, calc(var(--face-size) / 2));
 }
 
 .left {
 	background-color: var(--face-bg-color-4);
-	transform: rotateY(-90deg) translateZ(calc(var(--face-size) / 2));
+	transform: rotateY(-90deg) translate3d(calc(var(--face-size) / -2), 0, calc(var(--face-size) / 2));
 }
 
 .bottom {
 	background-color: var(--face-bg-color-5);
-	transform: rotateX(-90deg) translateZ(calc(var(--face-size) / 2));
+	transform: rotateX(-90deg) translate3d(0, calc(var(--face-size) / 2), calc(var(--face-size) / 2));
 }
 
 .back {
 	background-color: var(--face-bg-color-6);
-	transform: rotateY(180deg) translateZ(calc(var(--face-size) / 2));
+	transform: rotateY(180deg) translateZ(var(--face-size));
+}
+
+.controls {
+	display: flex;
+	flex-shrink: 0;
+	justify-content: center;
+	margin: 1rem;
+	min-width: calc(var(--face-size) * 2);
 }
 
 .controls fieldset {
 	border: 0;
-	margin: 0 0 1.2rem;
+	flex-shrink: 0;
+	margin: 0 0 calc(var(--line-height) * 1em);
 	padding: 0;
 }
 
@@ -119,7 +150,7 @@ main {
 
 .controls ul {
 	margin: 1.5rem 0;
-	padding: 0 2rem;
+	padding: 0 1.5rem;
 }
 
 .controls li {
@@ -131,40 +162,50 @@ main {
 
 .controls label {
 	cursor: pointer;
+	flex-shrink: 0;
+	margin-right: 1em;
 }
 
 .controls input {
 	cursor: pointer;
-	margin: 0 0.5rem 0 1rem;
+	flex-shrink: 0;
+	margin-left: 0;
+	margin-right: 0;
+}
+
+.controls fieldset[disabled] label,
+.controls fieldset[disabled] input {
+	cursor: unset;
+}
+
+.controls output {
+	flex-shrink: 0;
+	margin-left: 0.5em;
 }
 
 .output-value {
 	display: inline-block;
+	font-variant: tabular-nums;
 	min-width: 2em;
 	text-align: right;
 }
 
-noscript {
-	text-align: center;
+@media screen and (min-width: 720px) {
+	:root {
+		--face-size: 200px;
+	}
 }
 </style>
-
-<noscript>
-<style>
-.container,
-.cube,
-.controls label,
-.controls input {
-	cursor: unset;
-}
-</style>
-</noscript>
 </head>
 
 <body>
 <main>
-	<figure class="container" aria-label="Shape for manipulation">
-		<div class="cube" role="img" aria-label="Cube">
+	<noscript>
+		<p role="alert"><em>Please enable JavaScript.</em></p>
+	</noscript>
+
+	<figure class="container" aria-disabled="true" aria-label="Shape scene">
+		<div class="cube" role="img" aria-label="Cube for manipulation">
 			<div class="face front">1</div>
 			<div class="face top">2</div>
 			<div class="face right">3</div>
@@ -201,25 +242,24 @@ noscript {
 	<option value="180">180°</option>
 </datalist>
 
-<noscript>
-	<p><em>Please enable JavaScript.</em></p>
-</noscript>
-
 <script>
-function clampRotationValue(value, min = -180, max = 180, range = max - min) {
-	value = Math.round(value % range);
+function clampRotationValue(value) {
+	value = Math.round(value % 360);
 
-	if (value < min) {
-		value = value + range;
-	} else if (value > max) {
-		value = value - range;
+	if (value < -180) {
+		value = value + 360;
+	} else if (value > 180) {
+		value = value - 360;
 	}
 
 	return value;
 }
 
 function transformElement(element, rx = 0, ry = 0, rz = 0, tz = 0) {
-	element.style.transform = `rotateX(${ rx }deg) rotateY(${ ry }deg) rotateZ(${ rz }deg) translateZ(${ tz }px)`;
+	element.style.setProperty('--rotateX', rx);
+	element.style.setProperty('--rotateY', ry);
+	element.style.setProperty('--rotateZ', rz);
+	element.style.setProperty('--translateZ', tz);
 }
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -237,13 +277,14 @@ window.addEventListener('DOMContentLoaded', () => {
 		deltaX, deltaY, startX, startY;
 
 	function init() {
-		updateElements(valueX, valueY);
+		updateView(valueX, valueY);
 		container.setAttribute('tabindex', '0');
+		container.removeAttribute('aria-disabled');
 		document.querySelector('.controls fieldset').disabled = false;
 	}
 
 	function pointer1Moved() {
-		updateElements(clampRotationValue(valueX + deltaY), clampRotationValue(valueY + deltaX));
+		updateView(clampRotationValue(valueX + deltaY / 2), clampRotationValue(valueY + deltaX / 2));
 		rafId = null;
 	}
 
@@ -252,7 +293,7 @@ window.addEventListener('DOMContentLoaded', () => {
 		rafId = null;
 	}
 
-	function updateElements(rx, ry) {
+	function updateView(rx, ry) {
 		inputX.value = rx;
 		inputY.value = ry;
 		outputX.textContent = rx;
@@ -290,28 +331,30 @@ window.addEventListener('DOMContentLoaded', () => {
 	});
 
 	container.addEventListener('keydown', (event) => {
+		const delta = event.shiftKey ? 10 : 1;
+
 		switch (event.key) {
 			case 'ArrowDown':
-				valueX = clampRotationValue(valueX - (event.shiftKey ? 10 : 1));
-				updateElements(valueX, valueY);
+				valueX = clampRotationValue(valueX - delta);
+				updateView(valueX, valueY);
 				event.preventDefault();
 				break;
 
 			case 'ArrowLeft':
-				valueY = clampRotationValue(valueY - (event.shiftKey ? 10 : 1));
-				updateElements(valueX, valueY);
+				valueY = clampRotationValue(valueY - delta);
+				updateView(valueX, valueY);
 				event.preventDefault();
 				break;
 
 			case 'ArrowRight':
-				valueY = clampRotationValue(valueY + (event.shiftKey ? 10 : 1));
-				updateElements(valueX, valueY);
+				valueY = clampRotationValue(valueY + delta);
+				updateView(valueX, valueY);
 				event.preventDefault();
 				break;
 
 			case 'ArrowUp':
-				valueX = clampRotationValue(valueX + (event.shiftKey ? 10 : 1));
-				updateElements(valueX, valueY);
+				valueX = clampRotationValue(valueX + delta);
+				updateView(valueX, valueY);
 				event.preventDefault();
 				break;
 		}
@@ -321,18 +364,19 @@ window.addEventListener('DOMContentLoaded', () => {
 		event.preventDefault();
 	});
 
+	// CSS touch-action: none; is unreliable on iOS 13
 	container.addEventListener('touchmove', (event) => {
 		event.preventDefault();
 	});
 
 	inputX.addEventListener('input', (event) => {
 		valueX = event.currentTarget.valueAsNumber;
-		updateElements(valueX, valueY);
+		updateView(valueX, valueY);
 	});
 
 	inputY.addEventListener('input', (event) => {
 		valueY = event.currentTarget.valueAsNumber;
-		updateElements(valueX, valueY);
+		updateView(valueX, valueY);
 	});
 
 	init();
