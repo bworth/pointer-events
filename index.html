@@ -430,10 +430,10 @@ window.addEventListener('DOMContentLoaded', () => {
 	const outputY = document.querySelector('#output-y .output-value');
 	const themeToggle = document.querySelector('.theme-toggle');
 	let rafId = null,
+		rotateX = 0,
+		rotateY = 0,
+		rotateZ = 0,
 		translateZ = 0,
-		valueX = 0,
-		valueY = 0,
-		valueZ = 0,
 		deltaX, deltaY, startX, startY;
 
 	function init() {
@@ -444,19 +444,19 @@ window.addEventListener('DOMContentLoaded', () => {
 		}
 
 		themeToggle.disabled = false;
-		updateView(valueX, valueY);
+		updateView(rotateX, rotateY);
 		container.setAttribute('tabindex', '0');
 		container.removeAttribute('aria-disabled');
 		document.querySelector('.controls fieldset').disabled = false;
 	}
 
 	function pointer1Moved() {
-		updateView(clampRotationValue(valueX + deltaY / 2), clampRotationValue(valueY + deltaX / 2));
+		updateView(clampRotationValue(rotateX + deltaY / 2), clampRotationValue(rotateY + deltaX / 2));
 		rafId = null;
 	}
 
 	function pointer2Moved() {
-		transformElement(cube, valueX, valueY, clampRotationValue(valueZ + deltaX), translateZ + deltaY);
+		transformElement(cube, rotateX, rotateY, clampRotationValue(rotateZ + deltaX), translateZ + deltaY);
 		rafId = null;
 	}
 
@@ -488,8 +488,8 @@ window.addEventListener('DOMContentLoaded', () => {
 	});
 
 	cube.addEventListener('lostpointercapture', (event) => {
-		valueX = inputX.valueAsNumber;
-		valueY = inputY.valueAsNumber;
+		rotateX = inputX.valueAsNumber;
+		rotateY = inputY.valueAsNumber;
 
 		if (rafId) {
 			cancelAnimationFrame(rafId);
@@ -502,26 +502,26 @@ window.addEventListener('DOMContentLoaded', () => {
 
 		switch (event.key) {
 			case 'ArrowDown':
-				valueX = clampRotationValue(valueX - delta);
-				updateView(valueX, valueY);
+				rotateX = clampRotationValue(rotateX - delta);
+				updateView(rotateX, rotateY);
 				event.preventDefault();
 				break;
 
 			case 'ArrowLeft':
-				valueY = clampRotationValue(valueY - delta);
-				updateView(valueX, valueY);
+				rotateY = clampRotationValue(rotateY - delta);
+				updateView(rotateX, rotateY);
 				event.preventDefault();
 				break;
 
 			case 'ArrowRight':
-				valueY = clampRotationValue(valueY + delta);
-				updateView(valueX, valueY);
+				rotateY = clampRotationValue(rotateY + delta);
+				updateView(rotateX, rotateY);
 				event.preventDefault();
 				break;
 
 			case 'ArrowUp':
-				valueX = clampRotationValue(valueX + delta);
-				updateView(valueX, valueY);
+				rotateX = clampRotationValue(rotateX + delta);
+				updateView(rotateX, rotateY);
 				event.preventDefault();
 				break;
 		}
@@ -537,13 +537,13 @@ window.addEventListener('DOMContentLoaded', () => {
 	});
 
 	inputX.addEventListener('input', (event) => {
-		valueX = event.currentTarget.valueAsNumber;
-		updateView(valueX, valueY);
+		rotateX = event.currentTarget.valueAsNumber;
+		updateView(rotateX, rotateY);
 	});
 
 	inputY.addEventListener('input', (event) => {
-		valueY = event.currentTarget.valueAsNumber;
-		updateView(valueX, valueY);
+		rotateY = event.currentTarget.valueAsNumber;
+		updateView(rotateX, rotateY);
 	});
 
 	themeToggle.addEventListener('click', () => {
