@@ -527,7 +527,7 @@ window.addEventListener('DOMContentLoaded', () => {
 		event.preventDefault();
 	});
 
-	// touch-action: none; is less than reliable on iOS
+	// Seems that `touch-action: none;` is less than reliable on iOS 13
 	container.addEventListener('touchmove', (event) => {
 		event.preventDefault();
 	});
