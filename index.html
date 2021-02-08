@@ -95,12 +95,8 @@ noscript {
 	touch-action: none;
 }
 
-.container:focus {
+.container:focus:not(:focus-visible) {
 	outline: unset;
-}
-
-.container:focus-visible {
-	outline: revert;
 }
 
 .container[aria-disabled] {
